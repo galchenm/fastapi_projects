@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Path, HTTPException, Query
 from pydantic import BaseModel
+from typing import Optional
 
 app = FastAPI()
 students = {
@@ -14,6 +15,11 @@ class Student(BaseModel):
     name: str
     age: int
     class_name: str
+
+class UpdateStudent(BaseModel):
+    name: Optional[str] = None
+    age: Optional[int] = None
+    class_name: Optional[str] = None
 
 # GET get an info
 @app.get("/")
@@ -51,10 +57,15 @@ def create_student(student_id: int, student: Student):
 
 # PUT update an object
 @app.put("/update-student/{student_id}")
-def update_student(student_id: int, student: Student):
+def update_student(student_id: int, student: UpdateStudent):
     if student_id not in students:
         return {"error": "Student with this ID does not exist"}
-    students[student_id] = student
+    if student.name:
+        students[student_id]["name"] = student.name
+    if student.age:
+        students[student_id]["age"] = student.age
+    if student.class_name:
+        students[student_id]["class_name"] = student.class_name
     return students[student_id]
 
 # DELETE delete smth
